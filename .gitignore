@@ -9,4 +9,4 @@ node_modules
 *.iml
 out/
 .lsp
-/resource/public/styles.css
+/resources/public/styles.css
