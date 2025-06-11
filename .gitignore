@@ -1,0 +1,12 @@
+resources/public/js
+.cpcache
+.idea
+.shadow-cljs
+node_modules
+.nrepl-port
+.clj-kondo/.cache
+/.clj-kondo/imports/
+*.iml
+out/
+.lsp
+/resource/public/styles.css
