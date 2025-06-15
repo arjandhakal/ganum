@@ -10,12 +10,12 @@
 (defn ^:dev/after-load reload []
   (guis/init store)
   (println "また"))
-
 (comment
 
   ;;start the guis
   (main)
 
+  (reload)
   )
 
 
