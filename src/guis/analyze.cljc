@@ -1,9 +1,25 @@
-(ns guis.analyze)
+(ns guis.analyze
+  (:require [clojure.string :as str]))
 
-(defn perform-action [_ [action & args]]
-  (when (= ::upload-files action)
-    [[:effect/assoc-in [:uploads :reading-content?] true]
-     [:effect/read-file-content [:uploads :files] (:files (first args))]]))
+
+(defn tokenize
+  "Changes the document content into a sequence of words"
+  [content]
+  (let [terms (str/split content #" ")
+        lc-terms (map str/lower-case terms)]
+    (frequencies lc-terms)))
+
+(defn tfidf-analyze [files]
+  (prn files))
+
+(defn perform-action [state [action & args]]
+  (cond
+    (= ::upload-files action) [[:effect/assoc-in [:uploads :reading-content?] true]
+                               [:effect/read-file-content [:uploads :files] (:files (first args))]]
+    (= :tfidf-analyze action)
+     (tfidf-analyze (-> state
+                        :uploads
+                        :files))))
 
 (def supported-files ".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.txt,.md,.org,.csv,.rtf,.log,text/plain,text/markdown,text/org,text/csv,application/rtf,text/x-log")
 
@@ -14,12 +30,14 @@
    [:input.file-input.file-input-primary {:type "file"
                                           :name "files"
                                           :disabled (some-> state
-                                                             :uploads
-                                                             :reading-content?)
+                                                            :uploads
+                                                            :reading-content?)
                                           :multiple true
                                           :on {:change [[::upload-files
                                                          {:files :event.target/files}]]}
                                           :accept supported-files
-                                          :id "analyze-file-upload"} ]])
+                                          :id "analyze-file-upload"}]
+   [:button {:class "btn btn-info"
+             :on {:click [[:tfidf-analyze]]}} "Analyze"]])
 
 
