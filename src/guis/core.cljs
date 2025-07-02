@@ -4,6 +4,14 @@
             [clojure.walk :as walk]
             [cljs.core.async :refer [>! <! go chan go-loop ]]))
 
+;; color scheme
+
+;; DEBC9A
+;; 9D5D38
+;; A76d4a
+;; E89435
+;; DF8e2E
+
 (def views
   [{:id :analyze
     :text "Analyze"}])
@@ -14,9 +22,14 @@
 
 (defn render-ui [state]
   (let [current-view (get-current-view state)]
-    (case current-view
-      :analyze
-      (analyze/render-ui state))))
+    [:div.flex.flex-col.gap-2.m-auto.max-w-7xl
+     [:h1.font-bold.flex.gap-2.p-2 [:img {:src "images/ganum-logo.png"
+                           :alt "Ganum logo"
+                           :width "30px"}]
+      "Ganum"]
+     (case current-view
+       :analyze
+       (analyze/render-ui state))]))
 
 (defn read-file
   "Takes a Javascript file and reads it asynchronously, returning a channel."
