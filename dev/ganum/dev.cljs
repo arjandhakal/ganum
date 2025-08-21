@@ -2,7 +2,8 @@
   (:require [guis.core :as guis]
             [konserve.indexeddb :refer [connect-idb-store]]
             [konserve.core :as k]
-            [clojure.core.async :refer [go <!]]))
+            [clojure.core.async :refer [go <!]]
+            [bidi.bidi :as bidi]))
 
 (defonce store (atom {:current-view :analyze}))
 
@@ -21,8 +22,7 @@
   (main)
 
   (reload)
-
-
+   (prn store)
   
   )
 
@@ -32,9 +32,9 @@
     (let [my-idb-store (<! (connect-idb-store "cider-demo-db"))]
       (<! (k/assoc-in my-idb-store [:user] {:name "Alice" :age 30}))
       (print (<! (k/get-in my-idb-store [:user])))))
-
 ;
   )
 
+bidi/match-route
 
 

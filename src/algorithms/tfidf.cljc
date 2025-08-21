@@ -51,8 +51,12 @@
     (* tf idf)))
 
 
-(defn tfidf-analyze [files]
-  (prn files))
+(defn tfidf-analyze [file files]
+  (let [files-frequencies (map #(-> (:content %) tokenize frequencies)  files)
+        all-doc-frequencies (apply merge-with + files-frequencies)]
+    (prn (keys all-doc-frequencies))))
+
+
 
 
 

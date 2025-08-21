@@ -1,5 +1,6 @@
 (ns guis.analyze
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [algorithms.tfidf :as tfidf]))
 
 
 (defn tokenize
@@ -10,7 +11,7 @@
     (frequencies lc-terms)))
 
 (defn tfidf-analyze [files]
-  (prn files))
+  "")
 
 (defn perform-action [state [action & args]]
   (cond

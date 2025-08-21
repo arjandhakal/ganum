@@ -2,7 +2,8 @@
   (:require [guis.analyze :as analyze]
             [replicant.dom :as r]
             [clojure.walk :as walk]
-            [cljs.core.async :refer [>! <! go chan go-loop ]]))
+            [cljs.core.async :refer [>! <! go chan go-loop]]
+            [bidi.bidi :as router]))
 
 ;; color scheme
 
@@ -12,24 +13,42 @@
 ;; E89435
 ;; DF8e2E
 
-(def views
-  [{:id :analyze
-    :text "Analyze"}])
+(def routes
+  ["/" {"" :home
+        "files" :files
+        "analyze" :analyze}])
 
+(defmulti get-view-data identity)
+
+(defmethod get-view-data :home [_] {:id :home
+                            :text "Home"})
+(defmethod get-view-data :files [_] {:id :files
+                                 :text "Files"})
+(defmethod get-view-data :analyze [_] {:id :analyze
+                               :text "Analyze"})
 
 (defn get-current-view [state]
-  (:current-view state :analyze))
+  (:current-view state :home))
+
+(defn nav-perform-action [_state [action & args]]
+  (prn "Action" action (:location args))
+  (cond (= ::navigate action) [[:effect/assoc-in [:current-view] (:handler (router/match-route routes (:location (first args))))]]))
 
 (defn render-ui [state]
   (let [current-view (get-current-view state)]
     [:div.flex.flex-col.gap-2.m-auto.max-w-7xl
-     [:h1.font-bold.flex.gap-2.p-2 [:img {:src "images/ganum-logo.png"
-                           :alt "Ganum logo"
-                           :width "30px"}]
-      "Ganum"]
+     [:div.flex.items-center
+      [:h1.font-bold.flex.gap-2.p-2 [:img {:src "images/ganum-logo.png"
+                                           :alt "Ganum logo"
+                                           :width "30px"}]
+       "Ganum"]
+      [:span {:on {:click [[::navigate {:location "/analyze"}]]}} "Analyze"]]
      (case current-view
        :analyze
-       (analyze/render-ui state))]))
+       (analyze/render-ui state)
+       :home
+       [:h1 "Home"]
+       [:h1 "Default"])]))
 
 (defn read-file
   "Takes a Javascript file and reads it asynchronously, returning a channel."
@@ -64,7 +83,8 @@
    (fn [action]
      (prn (first action) (rest action))
      (or (analyze/perform-action state action)
-         (prn "Unknown action")))
+         (nav-perform-action state action)
+         (prn (str "Unknown action" action))))
    event-data))
 
 (defn process-effect [store [effect & args]]
@@ -83,15 +103,21 @@
      (case x
        :event.target/files
        (some-> event .-target .-files)
+       :event.navigate/location
+       (some-> js/window .-location .-pathname)
        x))
    data))
 
+
+(defn- on-pop-state [_event]
+  (prn _event)) 
 
 (defn init [store]
   (add-watch store ::render (fn [_ _ _ new-state]
                               (r/render
                                js/document.body
                                (render-ui new-state))))
+
 
   ;; Listening to all the events
   (r/set-dispatch!
@@ -100,5 +126,9 @@
           (perform-actions @store)
           (run! #(process-effect store %)))))
 
+  ;; Dispatching the initial route)
+  (swap! store assoc :current-view (:handler (router/match-route routes (-> js/window .-location .-pathname))))
+
   (swap! store assoc ::loaded-at (.getTime (js/Date.))))
+
 
