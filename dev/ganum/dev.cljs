@@ -23,7 +23,11 @@
 
   (reload)
    (prn store)
-  
+   (prn 1)
+
+(swap! store assoc ::loaded-at (.getTime (js/Date.)))
+   
+(swap! store assoc :current-view :analyze)
   )
 
 (comment

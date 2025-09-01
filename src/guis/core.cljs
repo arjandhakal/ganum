@@ -38,11 +38,11 @@
   (let [current-view (get-current-view state)]
     [:div.flex.flex-col.gap-2.m-auto.max-w-7xl
      [:div.flex.items-center
-      [:h1.font-bold.flex.gap-2.p-2 [:img {:src "images/ganum-logo.png"
-                                           :alt "Ganum logo"
-                                           :width "30px"}]
+      [:h1.font-bold.flex.gap-2.p-2.cursor-pointer {:on {:click [[::navigate {:location ""}]]}} [:img {:src "images/ganum-logo.png"
+                                              :alt "Ganum logo"
+                                              :width "30px"}]
        "Ganum"]
-      [:span {:on {:click [[::navigate {:location "/analyze"}]]}} "Analyze"]]
+      [:span.cursor-pointer.ml-auto.pr-10 {:on {:click [[::navigate {:location "/analyze"}]]}} "Analyze"]]
      (case current-view
        :analyze
        (analyze/render-ui state)
@@ -128,7 +128,7 @@
 
   ;; Dispatching the initial route)
   (swap! store assoc :current-view (:handler (router/match-route routes (-> js/window .-location .-pathname))))
-
+  
   (swap! store assoc ::loaded-at (.getTime (js/Date.))))
 
 

@@ -27,7 +27,7 @@
 
 (defn render-ui [state]
   [:div.flex.flex-col.gap-2.w-3xs.m-auto
-   [:h1 "Analyze Your Text File"]
+   [:h1 "Analyze Your Text Files"]
    [:input.file-input.file-input-primary {:type "file"
                                           :name "files"
                                           :disabled (some-> state
@@ -42,3 +42,7 @@
              :on {:click [[:tfidf-analyze]]}} "Analyze"]])
 
 
+(defn render-button [state]
+  [:button (if (= (:color state) "red")
+             "red button"
+             "other button")])
