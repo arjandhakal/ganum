@@ -3,7 +3,9 @@
             [konserve.indexeddb :refer [connect-idb-store]]
             [konserve.core :as k]
             [clojure.core.async :refer [go <!]]
-            [bidi.bidi :as bidi]))
+            [bidi.bidi :as bidi]
+            [clojure.spec.alpha :as s]))
+
 
 (defonce store (atom {:current-view :analyze}))
 
@@ -22,12 +24,17 @@
   (main)
 
   (reload)
-   (prn store)
-   (prn 1)
+  (prn store)
 
-(swap! store assoc ::loaded-at (.getTime (js/Date.)))
-   
-(swap! store assoc :current-view :analyze)
+  (prn 1)
+
+  (swap! store assoc ::loaded-at (.getTime (js/Date.)))
+
+  (swap! store assoc :current-view :analyze)
+
+  (s/explain :ganum.guis/state @store)
+  (s/valid? :ganum.guis/state @store)
+;;
   )
 
 (comment

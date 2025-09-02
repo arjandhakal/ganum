@@ -129,6 +129,6 @@
   ;; Dispatching the initial route)
   (swap! store assoc :current-view (:handler (router/match-route routes (-> js/window .-location .-pathname))))
   
-  (swap! store assoc ::loaded-at (.getTime (js/Date.))))
+  (swap! store assoc :loaded-at (.getTime (js/Date.))))
 
 
