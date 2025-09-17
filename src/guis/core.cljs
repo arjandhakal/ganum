@@ -30,9 +30,18 @@
 (defn get-current-view [state]
   (:current-view state :home))
 
+
+(defn update-browser-history [location]
+  (.pushState (.-history js/window) {} "" (if (= location "")
+                                            "/"
+                                            location)))
+
 (defn nav-perform-action [_state [action & args]]
-  (prn "Action" action (:location args))
-  (cond (= ::navigate action) [[:effect/assoc-in [:current-view] (:handler (router/match-route routes (:location (first args))))]]))
+  (let [location (:location (first args))]
+    (cond (= ::navigate action)
+          (do
+            (update-browser-history (or location "/"))
+            [[:effect/assoc-in [:current-view] (:handler (router/match-route routes (:location (first args))))]]))))
 
 (defn render-ui [state]
   (let [current-view (get-current-view state)]
@@ -49,6 +58,8 @@
        :home
        [:h1 "Home"]
        [:h1 "Default"])]))
+
+
 
 (defn read-file
   "Takes a Javascript file and reads it asynchronously, returning a channel."
@@ -130,5 +141,6 @@
   (swap! store assoc :current-view (:handler (router/match-route routes (-> js/window .-location .-pathname))))
   
   (swap! store assoc :loaded-at (.getTime (js/Date.))))
+(prn (-> js/window .-history))
 
 
