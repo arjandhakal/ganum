@@ -1,17 +1,11 @@
 (ns guis.core
   (:require [guis.analyze :as analyze]
+            [guis.files :as files]
             [replicant.dom :as r]
             [clojure.walk :as walk]
             [cljs.core.async :refer [>! <! go chan go-loop]]
-            [bidi.bidi :as router]))
-
-;; color scheme
-
-;; DEBC9A
-;; 9D5D38
-;; A76d4a
-;; E89435
-;; DF8e2E
+            [bidi.bidi :as router]
+            [guis.components.navbar :as navbar]))
 
 (def routes
   ["/" {"" :home
@@ -38,27 +32,23 @@
 
 (defn nav-perform-action [_state [action & args]]
   (let [location (:location (first args))]
-    (cond (= ::navigate action)
+    (cond (= :gui/navigate action)
           (do
             (update-browser-history (or location "/"))
             [[:effect/assoc-in [:current-view] (:handler (router/match-route routes (:location (first args))))]]))))
 
 (defn render-ui [state]
   (let [current-view (get-current-view state)]
-    [:div.flex.flex-col.gap-2.m-auto.max-w-7xl
-     [:div.flex.items-center
-      [:h1.font-bold.flex.gap-2.p-2.cursor-pointer {:on {:click [[::navigate {:location ""}]]}} [:img {:src "images/ganum-logo.png"
-                                              :alt "Ganum logo"
-                                              :width "30px"}]
-       "Ganum"]
-      [:span.cursor-pointer.ml-auto.pr-10 {:on {:click [[::navigate {:location "/analyze"}]]}} "Analyze"]]
+    [:div.flex.flex-col.gap-2.m-auto.max-w-7xl.p-2
+     (navbar/responsive-navbar)
      (case current-view
        :analyze
        (analyze/render-ui state)
        :home
        [:h1 "Home"]
+       :files
+       (files/render-ui state)
        [:h1 "Default"])]))
-
 
 
 (defn read-file
